@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Chat App</title>
+    <style>
+        .container{
+            display: grid;
+            grid-template-columns: 10% auto;
+        }
+    </style>
+</head>
+<body>
+    {% if logged_in %}
+    <p>Welcome!<span><h1>{{ request.user.first_name }} {{ request.user.last_name }}</h1></span></p>
+    <div class="container-1">
+        <table border="0">
+            <tr>
+                <th>Name</th><th>&nbsp;</th><th>Status</th>
+            </tr>
+            {% for frn in users %}
+                <tr>
+                    <td>{{ frn.first_name }} {{ frn.last_name }}</td><td>&nbsp;</td>
+                    <td>
+                        {% if frn.is_active %}
+                            <p class="item active-symbol" style="margin: 2px; width:20px;height:20px;border-radius:50%;background:lime;"> </p>
+                        {% endif %}
+                    </td>
+                </tr>
+            {% endfor %}
+        </table>
+    </div>
+    <a href="{% url 'logout' %}"><h1>Logout</h1></a>
+    {% else %}
+        <p>Please login<a href="{% url 'login_page' %}">Login here</a></p>
+    {% endif %}
+</body>
+</html>
