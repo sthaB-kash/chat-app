@@ -16,10 +16,11 @@
     <div class="container-1">
         <table border="0">
             <tr>
-                <th>Name</th><th>&nbsp;</th><th>Status</th>
+                <th>Username</th><th>Name</th><th>&nbsp;</th><th>Status</th>
             </tr>
             {% for frn in users %}
                 <tr>
+                    <td>{{ frn.username }}</td>
                     <td>{{ frn.first_name }} {{ frn.last_name }}</td><td>&nbsp;</td>
                     <td>
                         {% if frn.is_active %}

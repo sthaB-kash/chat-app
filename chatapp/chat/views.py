@@ -14,6 +14,8 @@ def login_page(request):
         user = authenticate(request, username=username, password=password)
         if user is not None:
             login(request, user)
+            request.session['user_id'] = user.id
+            request.session['user_email'] = user.email
             # print(user)
             return redirect('home')
         else:
@@ -24,7 +26,14 @@ def login_page(request):
 
 
 def logout_user(request):
+    user = User.objects.get(username=request.user)
+    user.is_active = False
     logout(request)
+    try:
+        del request.session['user_id']
+        del request.session['user_email']
+    except KeyError:
+        pass
     return redirect('login_page')
 
 
@@ -33,9 +42,14 @@ def home(request):
     logged_in = False
     if request.user.is_authenticated:
         print(request.user)
+        # logged_in = True
+        user = User.objects.get(username=request.user)
+        user.is_active = True
         logged_in = True
+        print('my id is ', request.session.get('user_id'))
+
     users = User.objects.all()
-    print(users)
+    # print(users)
     return render(request, "home.html",  {'users': users, 'logged_in': logged_in})
 
 
