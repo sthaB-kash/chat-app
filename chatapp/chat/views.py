@@ -5,6 +5,56 @@ from .registerform import CreateUserForm
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 
+import socket
+import threading
+import time
+
+
+def runserver():
+    HEADER = 64
+    PORT = 1229
+
+    # SERVER = "192.168.123.2"
+    DISCONNECT_MESSAGE = "!DISCONNECT"
+    SERVER = "172.17.36.97"  # socket.gethostbyname(socket.gethostname())
+    print(SERVER)
+    ADDR = (SERVER, PORT)
+    server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+
+    server.bind(ADDR)
+
+    def handle_client(conn, addr):
+        print(f"[New connection] {addr} connected.")
+        connected = True
+        while connected:
+            msg_length = conn.recv(HEADER).decode('utf-8')
+            if msg_length:
+                # print("length",msg_length)
+                msg_length = int(msg_length)
+                msg = conn.recv(msg_length).decode('utf-8')
+                # print("**********",msg)
+                if msg == DISCONNECT_MESSAGE:
+                    connected = False
+                print(f"[{addr}] {msg}")
+                conn.send("Msg received".encode("utf-8"))
+        print("outside loop(server)")
+        conn.close()
+
+    def start():
+        server.listen()
+        print(f"[LISTENING] server is Listening on {ADDR}")
+        while True:
+            conn, addr = server.accept()
+            thread = threading.Thread(target=handle_client, args=(conn, addr))
+            thread.start()
+            print(f"[ACTIVE Connections] {threading.activeCount() - 1}")
+
+    # print(server.listen())
+
+    print("[STARTING] server is starting...")
+
+    start()
+
 
 def login_page(request):
     if request.method == "POST":
@@ -37,6 +87,7 @@ def logout_user(request):
     return redirect('login_page')
 
 
+
 @login_required(login_url='login_page')
 def home(request):
     logged_in = False
@@ -47,6 +98,9 @@ def home(request):
         user.is_active = True
         logged_in = True
         print('my id is ', request.session.get('user_id'))
+
+        # open server
+        # runserver()
 
     users = User.objects.all()
     # print(users)
